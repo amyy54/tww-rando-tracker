@@ -26,6 +26,8 @@ class Buttons extends React.PureComponent {
       toggleChartList,
       toggleSettingsWindow,
       toggleEntrances,
+      toggleArchipelagoInfo,
+      archipelagoConnected,
       toggleOnlyProgressLocations,
       trackNonProgressCharts,
       viewingEntrances,
@@ -34,6 +36,9 @@ class Buttons extends React.PureComponent {
     const settingsWindowText = settingsWindowOpen
       ? 'Close Settings'
       : 'Open Settings';
+    const archipelagoText = archipelagoConnected
+      ? 'Archipelago: Connected'
+      : 'Archipelago: Disconnected';
     const chartListText = chartListOpen
       ? 'Close Chart List'
       : 'View Charts';
@@ -81,6 +86,12 @@ class Buttons extends React.PureComponent {
         >
           {settingsWindowText}
         </button>
+        <button
+          onClick={toggleArchipelagoInfo}
+          type="button"
+        >
+          {archipelagoText}
+        </button>
       </div>
     );
   }
@@ -93,6 +104,7 @@ Buttons.propTypes = {
   settingsWindowOpen: PropTypes.bool.isRequired,
   toggleChartList: PropTypes.func.isRequired,
   toggleEntrances: PropTypes.func.isRequired,
+  toggleArchipelagoInfo: PropTypes.func.isRequired,
   toggleOnlyProgressLocations: PropTypes.func.isRequired,
   toggleSettingsWindow: PropTypes.func.isRequired,
   trackNonProgressCharts: PropTypes.bool.isRequired,

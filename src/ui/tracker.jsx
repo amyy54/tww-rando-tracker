@@ -6,8 +6,11 @@ import { ToastContainer, toast } from 'react-toastify';
 
 import LogicHelper from '../services/logic-helper';
 import TrackerController from '../services/tracker-controller';
+import ArchipelagoClient from '../services/archipelago';
 
 import Buttons from './buttons';
+
+import ArchipelagoConfigurationWindow from './archipelago-configuration-window';
 import Images from './images';
 import ItemsTable from './items-table';
 import LocationsTable from './locations-table';
@@ -22,10 +25,24 @@ class Tracker extends React.PureComponent {
   constructor(props) {
     super(props);
 
+    addEventListener("archipelago-item", (e) => {
+      let trackerState = this.state.trackerState;
+      for (const item of e.detail.itemList) {
+        trackerState = trackerState.incrementItem(item);
+      }
+      for (const location of e.detail.locationList) {
+        let [genLocation, ...rest] = location.split("-");
+        trackerState = trackerState.toggleLocationChecked(genLocation.trim(), rest.join("-").trim());
+      }
+      this.updateTrackerState(trackerState);
+    });
+
     this.state = {
       chartListOpen: false,
       clearAllIncludesMail: true,
       settingsWindowOpen: false,
+      archipelagoConfigOpen: false,
+      archipelagoConnected: false,
       colors: {
         extraLocationsBackground: null,
         itemsTableBackground: null,
@@ -47,6 +64,8 @@ class Tracker extends React.PureComponent {
       viewingEntrances: false,
     };
 
+    this.archipelago = null;
+
     this.initialize();
 
     this.clearAllLocations = this.clearAllLocations.bind(this);
@@ -56,6 +75,7 @@ class Tracker extends React.PureComponent {
     this.toggleChartList = this.toggleChartList.bind(this);
     this.toggleSettingsWindow = this.toggleSettingsWindow.bind(this);
     this.toggleEntrances = this.toggleEntrances.bind(this);
+    this.toggleArchipelagoInfo = this.toggleArchipelagoInfo.bind(this);
     this.toggleLocationChecked = this.toggleLocationChecked.bind(this);
     this.toggleOnlyProgressLocations = this.toggleOnlyProgressLocations.bind(this);
     this.toggleRequiredBoss = this.toggleRequiredBoss.bind(this);
@@ -70,6 +90,8 @@ class Tracker extends React.PureComponent {
     this.updateOpenedExit = this.updateOpenedExit.bind(this);
     this.updateOpenedLocation = this.updateOpenedLocation.bind(this);
     this.updatePreferences = this.updatePreferences.bind(this);
+    this.connectToArchipelago = this.connectToArchipelago.bind(this);
+    this.disconnectArchipelago = this.disconnectArchipelago.bind(this);
   }
 
   async initialize() {
@@ -395,6 +417,14 @@ class Tracker extends React.PureComponent {
     this.updatePreferences({ viewingEntrances: !viewingEntrances });
   }
 
+  toggleArchipelagoInfo() {
+    const { archipelagoConfigOpen } = this.state;
+
+    this.setState({
+      archipelagoConfigOpen: !archipelagoConfigOpen,
+    });
+  }
+
   unsetLastLocation() {
     this.setState({ lastLocation: null });
   }
@@ -430,10 +460,29 @@ class Tracker extends React.PureComponent {
     Storage.savePreferences(newPreferences);
   }
 
+  async connectToArchipelago(connectionUri, slotName, password) {
+    this.archipelago = new ArchipelagoClient(connectionUri, slotName, password);
+    let con_status = await this.archipelago.connect();
+    this.setState({
+      archipelagoConnected: con_status
+    });
+    return con_status;
+  }
+
+  disconnectArchipelago() {
+    this.archipelago.disconnect();
+    this.archipelago = null;
+    this.setState({
+      archipelagoConnected: false
+    });
+  }
+
   render() {
     const {
       chartListOpen,
       clearAllIncludesMail,
+      archipelagoConfigOpen,
+      archipelagoConnected,
       colors,
       disableLogic,
       isLoading,
@@ -549,14 +598,25 @@ class Tracker extends React.PureComponent {
               updatePreferences={this.updatePreferences}
             />
           )}
+          {archipelagoConfigOpen && (
+            <ArchipelagoConfigurationWindow
+              toggleArchipelagoInfo={this.toggleArchipelagoInfo}
+              connectToArchipelago={this.connectToArchipelago}
+              disconnectArchipelago={this.disconnectArchipelago}
+              archipelagoConnected={archipelagoConnected}
+            />
+          )}
           <Buttons
             settingsWindowOpen={settingsWindowOpen}
             chartListOpen={chartListOpen}
+            archipelagoConnected={archipelagoConnected}
+            entrancesListOpen={entrancesListOpen}
             onlyProgressLocations={onlyProgressLocations}
             saveData={saveData}
             toggleChartList={this.toggleChartList}
             toggleSettingsWindow={this.toggleSettingsWindow}
             toggleEntrances={this.toggleEntrances}
+            toggleArchipelagoInfo={this.toggleArchipelagoInfo}
             toggleOnlyProgressLocations={this.toggleOnlyProgressLocations}
             trackNonProgressCharts={trackNonProgressCharts}
             viewingEntrances={viewingEntrances}
