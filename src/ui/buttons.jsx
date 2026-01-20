@@ -28,12 +28,17 @@ class Buttons extends React.PureComponent {
       trackSpheres,
       toggleChartList,
       toggleColorPicker,
+      toggleArchipelagoInfo,
+      archipelagoConnected,
       toggleDisableLogic,
       toggleEntrancesList,
       toggleOnlyProgressLocations,
       toggleTrackSpheres,
     } = this.props;
 
+    const archipelagoText = archipelagoConnected
+      ? 'Archipelago: Connected'
+      : 'Archipelago: Disconnected';
     const colorPickerText = colorPickerOpen
       ? 'Close Color Picker'
       : 'Open Color Picker';
@@ -94,6 +99,12 @@ class Buttons extends React.PureComponent {
         >
           {colorPickerText}
         </button>
+        <button
+          onClick={toggleArchipelagoInfo}
+          type="button"
+        >
+          {archipelagoText}
+        </button>
       </div>
     );
   }
@@ -109,6 +120,7 @@ Buttons.propTypes = {
   trackSpheres: PropTypes.bool.isRequired,
   toggleChartList: PropTypes.func.isRequired,
   toggleColorPicker: PropTypes.func.isRequired,
+  toggleArchipelagoInfo: PropTypes.func.isRequired,
   toggleDisableLogic: PropTypes.func.isRequired,
   toggleEntrancesList: PropTypes.func.isRequired,
   toggleOnlyProgressLocations: PropTypes.func.isRequired,
