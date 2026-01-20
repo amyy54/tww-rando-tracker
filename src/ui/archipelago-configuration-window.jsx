@@ -45,9 +45,9 @@ class ArchipelagoConfigurationWindow extends React.PureComponent {
     const { connectionUri, slotName, password, con_error } = this.state;
 
     return (
-      <div className="color-picker-window">
-        <div className="color-picker-top-row">
-          <div className="color-picker-title">Archipelago Configuration</div>
+      <div className="settings-window">
+        <div className="settings-window-top-row">
+          <div className="settings-window-title">Archipelago Configuration</div>
           <div
             className="close-button"
             onClick={toggleArchipelagoInfo}
@@ -58,9 +58,9 @@ class ArchipelagoConfigurationWindow extends React.PureComponent {
             X Close
           </div>
         </div>
-        <div className="color-picker-row">
+        <div className="settings-window-row">
           <label
-            className="color-picker-label"
+            className="settings-window-label"
             htmlFor="archipelago-connection"
           >
             Connection URI
@@ -73,9 +73,9 @@ class ArchipelagoConfigurationWindow extends React.PureComponent {
             onChange={this.handleChange}
           ></input>
         </div>
-        <div className="color-picker-row">
+        <div className="settings-window-row">
           <label
-            className="color-picker-label"
+            className="settings-window-label"
             htmlFor="archipelago-slot-name"
           >
             Slot Name
@@ -88,9 +88,9 @@ class ArchipelagoConfigurationWindow extends React.PureComponent {
             onChange={this.handleChange}
           ></input>
         </div>
-        <div className="color-picker-row">
+        <div className="settings-window-row">
           <label
-            className="color-picker-label"
+            className="settings-window-label"
             htmlFor="archipelago-password"
           >
             Password
@@ -104,9 +104,9 @@ class ArchipelagoConfigurationWindow extends React.PureComponent {
             onChange={this.handleChange}
           ></input>
         </div>
-        <div className="color-picker-row">
+        <div className="settings-window-row">
           <button id="archieplago-connect-btn" onClick={this.handleConnect}>{btnText}</button>
-          <label className="color-picker-label" htmlFor="archipelago-connect-btn">Logging In JS Console</label>
+          <label className="settings-window-label" htmlFor="archipelago-connect-btn">Logging In JS Console</label>
         </div>
 
       </div>

@@ -610,7 +610,6 @@ class Tracker extends React.PureComponent {
             settingsWindowOpen={settingsWindowOpen}
             chartListOpen={chartListOpen}
             archipelagoConnected={archipelagoConnected}
-            entrancesListOpen={entrancesListOpen}
             onlyProgressLocations={onlyProgressLocations}
             saveData={saveData}
             toggleChartList={this.toggleChartList}
