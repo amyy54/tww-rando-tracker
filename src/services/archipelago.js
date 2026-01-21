@@ -1,4 +1,4 @@
-import { Client, Item } from "archipelago.js";
+import { Client } from "archipelago.js";
 
 class ArchipelagoClient {
     constructor(server, slotName, password) {
@@ -6,9 +6,11 @@ class ArchipelagoClient {
         this.slotName = slotName;
         this.password = password
         this.client = new Client();
+        this.queuedItems = [];
+        this.queueTimer = undefined;
 
         this.client.messages.on("message", (text) => { console.log(`[archipelago-msg] ${text}`); });
-        this.client.items.on("itemsReceived", this.handleItems.bind(this));
+        this.client.messages.on("itemSent", this.handleSentItems.bind(this));
     }
 
     async connect() {
@@ -21,11 +23,37 @@ class ArchipelagoClient {
         } catch (error) {
             console.error(error);
         }
+        this.handleItems(this.client.items.received);
         return this.client.authenticated;
     }
 
     disconnect() {
         this.client.socket.disconnect();
+    }
+
+    /*  
+    Create a queue of items for processing after it's been a 
+    while since items have been received. This *must* be done
+    to allow people to release/collect, and in case checks get
+    collected twice in quick succession (see: Tingle). Half a
+    second is arbitrary but the delay is insignificant through
+    real-world use, even if it delays all updates by half a
+    second in case anything more is coming. Release signals can
+    be used, but then checks like Tingle wouldn't work.
+    Best compromise I could think of.
+    */
+    handleSentItems(_, item) {
+        let clientName = this.client.name.trim();
+        if (item.receiver.name.trim() == clientName || item.sender.name.trim() == clientName) {
+            this.queuedItems.push(item);
+            if (this.queueTimer != undefined) {
+                clearTimeout(this.queueTimer);
+            }
+            this.queueTimer = setTimeout(() => {
+                this.handleItems(this.queuedItems);
+                this.queuedItems = [];
+            }, 500);
+        } // If it has nothing to do with us, just throw it out
     }
 
     handleItems(items) {
@@ -45,6 +73,12 @@ class ArchipelagoClient {
                 if (itemName.includes("Triforce Shard")) {
                     itemName = "Triforce Shard";
                 }
+
+                // Same issue with Tingle Statues
+                if (itemName.includes("Tingle Statue")) {
+                    itemName = "Tingle Statue";
+                }
+
                 itemList.push(itemName);
             }
             if (item.sender.name.trim() == this.client.name.trim()) { // Sent an item
