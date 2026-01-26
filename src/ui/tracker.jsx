@@ -32,7 +32,10 @@ class Tracker extends React.PureComponent {
       }
       for (const location of e.detail.locationList) {
         let [genLocation, ...rest] = location.split("-");
-        trackerState = trackerState.toggleLocationChecked(genLocation.trim(), rest.join("-").trim());
+        let detLocation = rest.join("-").trim();
+        if (!trackerState.isLocationChecked(genLocation.trim(), detLocation)) {
+          trackerState = trackerState.toggleLocationChecked(genLocation.trim(), detLocation);
+        }
       }
       this.updateTrackerState(trackerState);
     });
